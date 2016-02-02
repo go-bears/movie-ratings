@@ -6,6 +6,8 @@ from model import User, Movie, Ratings
 from model import connect_to_db, db
 from server import app
 
+from datetime import datetime
+
 
 def load_users():
     """Load users from u.user into database."""
@@ -37,16 +39,31 @@ def load_movies():
 
     Movie.query.delete()
 
+    # Read u.item file and insert data
     for row in open('seed_data/u.item'):
         row = row.rstrip()
-        movie_id, title, release_date, video_date, 
-        imdb_url, unknown, action, adventure, animation,
-        childrens, comedy, crime, documentary, drama, fantasy, 
-        film_noir, horror, musical, mystery, romance, sci_fi, 
+        
+        # print row
+        # print row.split("|")
+
+        movie_id, title, release_date, video_date, \
+        imdb_url, unknown, action, adventure, animation, \
+        childrens, comedy, crime, documentary, drama, fantasy, \
+        film_noir, horror, musical, mystery, romance, sci_fi, \
         thriller, war, western = row.split('|')
 
+        # print movie_id, release_date
+
         title = " ".join(title.split()[:-1])
-        release_date = datetime.datetime.strptime(released_date, "%d-%b-%Y")
+
+
+        #  Conditional to handle empty release_date value
+        if release_date:
+            release_date = datetime.strptime(release_date, "%d-%b-%Y")
+        
+        # if no release_date available, set value to Dawn of Exploration Age.
+        else:
+            release_date = datetime(1600, 1, 1)
 
         movie = Movie(movie_id=movie_id,
                       title=title, 
@@ -63,6 +80,7 @@ def load_ratings():
 
     Ratings.query.delete()
 
+    # Read u.data file and insert data
     for row in open('seed_data/u.data'):
         row = row.rstrip()
         user_id, movie_id, score, timestamp = row.split()
@@ -92,6 +110,9 @@ if __name__ == "__main__":
 
     # In case tables haven't been created, create them
     db.create_all()
+
+    # from pdb import set_trace
+    # set_trace()
 
     # Import different types of data
     load_users()
