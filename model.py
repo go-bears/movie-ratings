@@ -58,8 +58,8 @@ class Ratings(db.Model):
     movie_id = db.Column(db.Integer, db.ForeignKey('movies.movie_id'), nullable=False)
 
     # set relationship between Ratings and User & Movie classes
-    movies = db.relationship('Movie')
-    users = db.relationship('User')
+    movies = db.relationship('Movie', backref=db.backref("ratings", order_by=rating_id))
+    users = db.relationship('User', backref=db.backref("ratings", order_by=rating_id))
 
     def __repr__(self):
         """Provide a better display for object info when printed"""
