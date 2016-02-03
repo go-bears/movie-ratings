@@ -5,8 +5,18 @@
 </head>
 
 <body>
-  Ratings
-  <hr>
+
+<div class="nav" style="border-bottom:1px solid #cccccc;">
+    <p>
+    <span style="width:50%;display:inline-block;">Ratings</span>
+    <span style="text-align:right; display:inline-block;">
+        <a href='/log_out'><button>
+            Log Out
+        </button></a>
+    </span>
+    </p>
+</div>
+  <!-- <hr> -->
   {% with messages = get_flashed_messages() %}
   {% if messages %}
     {% for message in messages %}

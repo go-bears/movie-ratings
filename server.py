@@ -18,28 +18,56 @@ app.secret_key = "ABC"
 app.jinja_env.undefined = StrictUndefined
 
 
-@app.route('/', methods=["POST"])
+@app.route('/')
 def index():
+    """Homepage."""
+
+    return render_template("homepage.html")
+
+
+@app.route('/login_completion', methods=["POST"])
+def login_completion():
     """Homepage."""
 
     email = request.form.get('username')
     password =request.form.get('password')
 
     print email, password
-    
-    if db.session.query(User).filter(User.email==email and User.password==password).first():
+
+    # successful login    
+    if db.session.query(User).filter((User.email==email) & (User.password==password)).first():
         print "Database queried!"
         flash("You are now logged in!")
-    else:
+        session['email'] = email
+        return render_template("homepage.html")
+
+    # email already exists -- incorrect password
+    elif db.session.query(User).filter(User.email==email).first():
+        flash("The password does not match the user email. Try Again!")
+        return render_template('login_form.html') 
+
+    # no email in db -- new user add
+    elif not db.session.query(User).filter((User.email==email) & (User.password==password)).first():
         new_user = User(email=email, password=password)
         db.session.add(new_user)
         db.session.commit()
 
+        session['email'] = email
         flash("Hi! We added you the database")
 
         print "I commited ", new_user, "to the database"
+        return render_template("homepage.html")
+    
 
+@app.route("/log_out")
+def logging_out():
+    """Logs User out of Ratings & clears Flask session dictionary """
+    
+    session.pop('email', None)
+    flash("Thanks! You are now logged out")
+        
     return render_template("homepage.html")
+
 
 @app.route("/login")
 def login_form():
