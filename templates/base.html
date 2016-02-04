@@ -6,13 +6,19 @@
 
 <body>
 
-<div class="nav" style="border-bottom:1px solid #cccccc;">
+<div class="nav" id="nav-bar" style="border-bottom:1px solid #cccccc;">
     <p>
     <span style="width:50%;display:inline-block;">Ratings</span>
     <span style="text-align:right; display:inline-block;">
+        {% if not logged_in %}
+        <a href='/login'><button>
+            Log In
+        </button></a>
+        {% else %}
         <a href='/log_out'><button>
             Log Out
         </button></a>
+        {% endif %}
     </span>
     </p>
 </div>
