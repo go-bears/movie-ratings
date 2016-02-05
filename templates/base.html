@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+  <title>Ratings</title>
+</head>
+
+<body>
+
+<div class="nav" id="nav-bar" style="border-bottom:1px solid #cccccc;">
+    <p>
+    <span style="width:50%;display:inline-block;">Ratings</span>
+    <span style="text-align:right; display:inline-block;">
+      <a href='/'><button>
+        Home
+      </button></a>
+        {% if not logged_in %}
+        <a href='/login'><button>
+            Log In
+        </button></a>
+        {% else %}
+        <a href='/log_out'><button>
+            Log Out
+        </button></a>
+        {% endif %}
+    </span>
+    </p>
+</div>
+  <!-- <hr> -->
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+    {% for message in messages %}
+      {{ message }}
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+  {% block content %} put your content here {% endblock %}
+
+</body>
+</html>

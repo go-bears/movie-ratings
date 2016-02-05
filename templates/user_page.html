@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <h2>User Info</h2>
+    <p>Your Profile</p>
+    <ul>
+      <li>Zipcode: {{ zipcode }}</li>
+      <li>Age: {{ age }}</li>
+    </ul>
+    <p>Movies You've Rated!</p>
+    <ul>
+      <!--conditional expression to check if empty list has been passed to jinga template-->
+      {% if ratings_list == [] %}
+          <li>You haven't rated any movies yet!</li>
+      {% else %}
+
+      <!--loop over ratings_list to extract individual ratings-->
+      {% for rating in ratings_list %}
+
+      <!--get movie object from each rating, then get each title from movie-->
+          <li>{{ rating.movies.title }}</li>
+
+      {% endfor %}
+      {% endif %}
+    </ul>
+
+{% endblock %}
