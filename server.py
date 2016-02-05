@@ -27,6 +27,13 @@ def index():
 
     return render_template("homepage.html", logged_in=session.get('email', False))
 
+@app.route("/login")
+def login_form():
+    """Displays user login form."""
+
+    
+    return render_template("login_form.html", logged_in=session.get('email', False))
+
 
 @app.route('/login_completion', methods=["POST"])
 def login_completion():
@@ -49,7 +56,7 @@ def login_completion():
         flash("The password does not match the user email. Try Again!")
         return render_template('login_form.html', logged_in=session.get('email', False)) 
 
-    # no email in db -- new user add
+    # not email in db -- new user add
     elif not db.session.query(User).filter((User.email==email) & (User.password==password)).first():
         new_user = User(email=email, password=password)
         db.session.add(new_user)
@@ -72,12 +79,7 @@ def logging_out():
     return render_template("homepage.html", logged_in=session.get('email', False))
 
 
-@app.route("/login")
-def login_form():
-    """Displays user login form."""
 
-    
-    return render_template("login_form.html", logged_in=session.get('email', False))
 
 
 @app.route("/users")
@@ -163,9 +165,81 @@ def movie_detail(movie_id):
                                               logged_in=session.get('email', False))
 
 
-@app.route("/new_rating/<int:movie_id>")
+
+@app.route("/new_rating/<int:movie_id>", methods=["POST"])
 def update_rating(movie_id):
-    pass
+    """takes POST data from movie_page and updates movie with new user ratings """
+    
+    # get email information from flask session 
+    email = session['email']
+
+    # query database using email info from flask session 
+    user = db.session.query(User).filter(User.email == email).first()
+
+    # get a list of ratings objects from user object
+    ratings_list = user.ratings
+
+    # create list comprehension for list of movie_id's from the user's rating list
+    movie_id_list = [r.movie_id for r in ratings_list]
+
+    # check if our movie_id, which is passed in via flask through URL, is in our movie_id list
+    if movie_id in movie_id_list:
+        # update that rating
+
+        # get old rating object
+        old_rating = db.session.query(Ratings).filter((Ratings.movie_id == movie_id) &
+                                                       (Ratings.user_id == user.user_id)).first()
+        
+        # get new rating score
+        new_rating_score = request.form.get('user_rates_movie')
+        
+        # set old_rating score to the new rating score
+        old_rating.score = new_rating_score
+
+        # add old_rating object to session
+        db.session.add(old_rating)
+
+        # signal user that rating has been updated
+        flash('You updated your rating!')
+
+    else:
+        # get new rating score
+        new_rating_score = request.form.get('user_rates_movie')
+
+        # add the rating and movie to movie_list
+        new_rating = Ratings(score=new_rating_score, user_id=user.user_id, movie_id=movie_id)
+        
+        # add new rating to db
+        db.session.add(new_rating)
+
+        # singal user that new movie rating has been logged
+        flash('You added a new movie rating!')
+
+    # commit changes to the db
+    db.session.commit()
+
+    # fetch the movie details by movie_ID
+    movie = db.session.query(Movie).get(movie_id)
+
+    # movie information elements  
+    title = movie.title
+    release_date = movie.release_date.strftime('%B %d, %Y')
+    imdb_url = movie.imdb_url
+    ratings_list = movie.ratings
+
+    total = sum(r.score for r in ratings_list)
+    avg_rating = float(total / len(ratings_list))
+
+    # render movie page with original movie information, new rating information & 
+    #flashed messages
+    return render_template("movie_page.html", title=title,
+                                              release_date=release_date,
+                                              imdb_url=imdb_url,
+                                              avg_rating=avg_rating,
+                                              user_rating=new_rating_score,
+                                              ratings_list=ratings_list,
+                                              movie_id = movie_id,
+                                              logged_in=session.get('email', False))
 
 
 

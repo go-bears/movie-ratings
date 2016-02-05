@@ -16,10 +16,17 @@ def pearson(pairs):
 
     squares_1 = sum([n * n for n in series_1])
     squares_2 = sum([n * n for n in series_2])
+    print squares_1, "sq 1"
+    print squares_2, "sq 2"
 
     product_sum = sum([n * m for n, m in pairs])
+    print product_sum, "I AM SUM-PRODUCT"
+    print sum_1, "SUM 1"
+    print sum_2, "SUM 2"
 
     size = len(pairs)
+
+    print size, "SIZE"
 
     numerator = product_sum - ((sum_1 * sum_2) / size)
 
@@ -27,6 +34,9 @@ def pearson(pairs):
         (squares_1 - (sum_1 * sum_1) / size) *
         (squares_2 - (sum_2 * sum_2) / size)
     )
+
+    print denominator, "denominator"
+    print numerator, "numerator"
 
     if denominator == 0:
         return 0

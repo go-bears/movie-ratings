@@ -1,6 +1,8 @@
 """Models and database functions for Ratings project."""
 
 from flask_sqlalchemy import SQLAlchemy
+from correlation import pearson
+
 
 # This is the connection to the PostgreSQL database; we're getting this through
 # the Flask-SQLAlchemy helper library. On this, we can find the `session`
@@ -22,6 +24,44 @@ class User(db.Model):
     password = db.Column(db.String(64), nullable=True)
     age = db.Column(db.Integer, nullable=True)
     zipcode = db.Column(db.String(15), nullable=True)
+
+
+    def similarity(self, other):
+        """Return Pearson rating for user compared to other user."""
+
+        # create empty dictionary for user's movie ratings with movie_id as key, 
+        # rating object as value
+        user_dict = {r.movie_id : r for r in self.ratings}
+        print user_dict
+        
+        # create empty list to hold tuples of (user rating, other person's rating) 
+        paired_ratings = []
+
+        # iterate through ratings of the second user and find pairs where
+        # both users have watched the same movie
+        for r in other.ratings:
+
+            # checks movie_id key against user's rating dictionary, bind value
+            # associated wtih the key
+            u_r = user_dict.get(r.movie_id)
+
+            # if the value is not none, then a tuple pair is appended to the paired list
+            if u_r:
+                paired_ratings.append((u_r.score, r.score))
+
+        print paired_ratings
+
+        # once the for loop ends, if the paired list is not empty
+        # we calculate the pearson correlation between user and other
+        if paired_ratings:
+            print pearson(paired_ratings)
+            return pearson(paired_ratings)
+
+        # if the paired list is empty, it means that user and other 
+        # have rated no movies in common and a pearson correlation of 0 is returned
+        else:
+            return 0.0
+
 
     def __repr__(self):
         """Provide a better display for object info when printed"""
